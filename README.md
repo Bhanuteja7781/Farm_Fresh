@@ -1,5 +1,3 @@
-# Farm_Fresh
-A user-friendly web platform that empowers local farmers to showcase and sell their products directly to customers. Includes features like product browsing, delivery scheduling, and secure payment processing.
 # Farm_Fresh 🌿
 
 Farm_Fresh is a web platform designed to help local farmers connect directly with customers. It provides a simple and effective way for farmers to list their fresh produce and for customers to browse, schedule deliveries, and make secure payments — all in one place.
