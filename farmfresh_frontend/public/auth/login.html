@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmFresh - Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function checkIfLoggedIn() {
+      const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+      if (match) {
+        window.location.href = '/';
+      }
+    })();
+  </script>
+  <style>
+    /* Basic Reset & Font */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 60px; /* Space for navbar */
+    }
+
+    /* Enhanced Navbar (Same as Home Page) */
+    .navbar {
+      background-color: #28a745;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .navbar h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-right: auto;
+    }
+
+    .navbar .nav-right {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.3s ease;
+      font-size: 16px;
+    }
+
+    .navbar a:hover {
+      opacity: 0.8;
+      text-decoration: none;
+    }
+
+    /* Login Box (Styled to match overall theme) */
+    .login-box {
+      background: white;
+      padding: 40px; /* Increased padding */
+      border-radius: 12px; /* More rounded corners */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      width: clamp(300px, 40%, 400px); /* Responsive width */
+      margin-top: 30px; /* Space from navbar */
+    }
+
+    .login-box h2 {
+      margin-bottom: 30px;
+      color: #28a745;
+      text-align: center;
+      font-weight: 700;
+      font-size: 24px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    button {
+      width: 100%;
+      padding: 12px 15px; /* Increased padding */
+      margin-top: 15px;
+      border: 1px solid #ced4da;
+      border-radius: 8px; /* More rounded corners */
+      font-size: 16px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #28a745;
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+    }
+
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      padding: 12px 20px;
+      border-radius: 8px;
+    }
+
+    button:hover {
+      background: #218838;
+      transform: scale(1.02);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .error {
+      color: #dc3545;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <h1>FarmFresh</h1>
+    <div class="nav-right">
+      <a href="/">Home</a>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    </div>
+  </nav>
+  <div class="login-box">
+    <h2>Login to FarmFresh</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+      <p class="error" id="errorMsg"></p>
+    </form>
+  </div>
+
+  <script>
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? match[2] : null;
+    }
+
+    document.getElementById('loginForm').onsubmit = async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      try {
+        const res = await fetch('http://localhost/farmfresh/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          document.cookie = `token=${data.token}; path=/;`;
+          const role = data.user.role;
+          if (role === 'customer') {
+            window.location.href = '/';
+          } else if (role === 'farmer') {
+            window.location.href = '/farmer/dashboard';
+          } else if (role === 'admin') {
+            window.location.href = '/admin/dashboard';
+          } else {
+            errorMsg.textContent = 'Unknown role.';
+          }
+        } else {
+          errorMsg.textContent = data.message;
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Login failed. Please try again.';
+      }
+    };
+  </script>
+</body>
+
+</html>
